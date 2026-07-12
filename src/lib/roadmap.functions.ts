@@ -24,27 +24,36 @@ export const submitRoadmap = createServerFn({ method: "POST" })
     // request — the actual work continues on n8n's side. Use a short timeout
     // just to confirm delivery, and treat timeouts as success since the
     // workflow will still run to completion and email the user.
+    // n8n's workflow (PDF + email) can take much longer than an HTTP
+    // round-trip. We fire the request and race it against a short timer:
+    // as long as we've handed the payload to n8n, we report success. Any
+    // hard failure to reach n8n at all is surfaced as an error.
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 8000);
-    try {
-      const res = await fetch(webhookUrl, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-        signal: controller.signal,
-      });
-      if (!res.ok && res.status !== 0) {
+    const fetchPromise = fetch(webhookUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+      signal: controller.signal,
+    }).then(
+      (res) => ({ kind: "response" as const, ok: res.ok, status: res.status }),
+      (err: unknown) => ({ kind: "error" as const, err }),
+    );
+    const timeoutPromise = new Promise<{ kind: "timeout" }>((resolve) =>
+      setTimeout(() => resolve({ kind: "timeout" }), 6000),
+    );
+    const result = await Promise.race([fetchPromise, timeoutPromise]);
+
+    if (result.kind === "timeout") {
+      // n8n accepted the connection but the workflow is still running.
+      // Don't abort — let it finish server-side. Report success to the client.
+      return { ok: true as const, pending: true as const };
+    }
+    if (result.kind === "response") {
+      if (!result.ok && result.status >= 400 && result.status !== 408) {
         throw new Error("Upstream request failed");
       }
       return { ok: true as const };
-    } catch (err) {
-      // If the request was aborted due to our timeout, n8n has already
-      // received the payload and is processing it — surface as success.
-      if (err instanceof Error && err.name === "AbortError") {
-        return { ok: true as const, pending: true as const };
-      }
-      throw new Error("Failed to submit roadmap request");
-    } finally {
-      clearTimeout(timeout);
     }
+    // Network-level failure reaching n8n.
+    throw new Error("Failed to submit roadmap request");
   });

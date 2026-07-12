@@ -77,14 +77,13 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "Lovable Generated Project" },
-      { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Lovable Generated Project" },
+      { title: "CareerPilot AI — Build Your Career Roadmap with AI" },
+      { name: "description", content: "Generate a personalized AI career roadmap with the best courses, projects, and certifications, delivered as a PDF to your inbox." },
+      { name: "author", content: "CareerPilot AI" },
+      { property: "og:title", content: "CareerPilot AI — Build Your Career Roadmap with AI" },
+      { property: "og:description", content: "Personalized AI-generated learning roadmaps emailed as beautiful PDFs." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:site", content: "@Lovable" },
     ],
     links: [
       {

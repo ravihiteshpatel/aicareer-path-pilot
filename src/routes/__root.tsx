@@ -81,9 +81,13 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "description", content: "Generate a personalized AI career roadmap with the best courses, projects, and certifications, delivered as a PDF to your inbox." },
       { name: "author", content: "CareerPilot AI" },
       { property: "og:title", content: "CareerPilot AI — Build Your Career Roadmap with AI" },
-      { property: "og:description", content: "Personalized AI-generated learning roadmaps emailed as beautiful PDFs." },
+      { property: "og:description", content: "Generate a personalized AI career roadmap with the best courses, projects, and certifications, delivered as a PDF to your inbox." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: "CareerPilot AI — Build Your Career Roadmap with AI" },
+      { name: "twitter:description", content: "Generate a personalized AI career roadmap with the best courses, projects, and certifications, delivered as a PDF to your inbox." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/b4e3e8d4-49f7-4af0-8fd1-5dadd1b04f7d/id-preview-ddcdc8ec--bd7a0bfb-3b8b-4d24-a22b-fdacab050ded.lovable.app-1783854455011.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/b4e3e8d4-49f7-4af0-8fd1-5dadd1b04f7d/id-preview-ddcdc8ec--bd7a0bfb-3b8b-4d24-a22b-fdacab050ded.lovable.app-1783854455011.png" },
     ],
     links: [
       {

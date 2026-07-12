@@ -30,7 +30,7 @@ export const Route = createFileRoute("/")({
   component: Index,
 });
 
-const WEBHOOK_URL = "https://ravipatelai.app.n8n.cloud/webhook-test/career-roadmap";
+const WEBHOOK_URL = "https://ravipatel1994.app.n8n.cloud/webhook-test/career-roadmap";
 
 const CAREERS = [
   "AI Engineer","Data Scientist","Machine Learning Engineer","Software Developer",

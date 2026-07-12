@@ -1,5 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
+import { submitRoadmap } from "@/lib/roadmap.functions";
 import {
   Sparkles,
   BookOpen,
@@ -29,8 +31,6 @@ import heroImg from "@/assets/hero.jpg";
 export const Route = createFileRoute("/")({
   component: Index,
 });
-
-const WEBHOOK_URL = "https://ravipatel1994.app.n8n.cloud/webhook/career-roadmap";
 
 const CAREERS = [
   "AI Engineer","Data Scientist","Machine Learning Engineer","Software Developer",
@@ -70,6 +70,7 @@ type Status = "idle" | "loading" | "success" | "error";
 
 function Index() {
   const [status, setStatus] = useState<Status>("idle");
+  const submit = useServerFn(submitRoadmap);
   const [loadingIdx, setLoadingIdx] = useState(0);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -104,18 +105,15 @@ function Index() {
     setStatus("loading");
     setLoadingIdx(0);
     try {
-      const res = await fetch(WEBHOOK_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
+      await submit({
+        data: {
           name: name.trim(),
           email: email.trim(),
           career: career === "Other" ? customCareer.trim() : career,
-          level,
+          level: level as "Beginner" | "Intermediate" | "Expert",
           goal: goal.trim(),
-        }),
+        },
       });
-      if (!res.ok) throw new Error("Request failed");
       setStatus("success");
     } catch {
       setStatus("error");

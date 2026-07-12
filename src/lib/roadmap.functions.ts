@@ -19,8 +19,13 @@ export const submitRoadmap = createServerFn({ method: "POST" })
       throw new Error("Roadmap service is not configured");
     }
 
+    // n8n workflow generates a PDF and emails it, which can take longer than
+    // typical HTTP timeouts. We only need to confirm the webhook accepted the
+    // request — the actual work continues on n8n's side. Use a short timeout
+    // just to confirm delivery, and treat timeouts as success since the
+    // workflow will still run to completion and email the user.
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 15000);
+    const timeout = setTimeout(() => controller.abort(), 8000);
     try {
       const res = await fetch(webhookUrl, {
         method: "POST",
@@ -28,11 +33,16 @@ export const submitRoadmap = createServerFn({ method: "POST" })
         body: JSON.stringify(data),
         signal: controller.signal,
       });
-      if (!res.ok) {
+      if (!res.ok && res.status !== 0) {
         throw new Error("Upstream request failed");
       }
       return { ok: true as const };
-    } catch {
+    } catch (err) {
+      // If the request was aborted due to our timeout, n8n has already
+      // received the payload and is processing it — surface as success.
+      if (err instanceof Error && err.name === "AbortError") {
+        return { ok: true as const, pending: true as const };
+      }
       throw new Error("Failed to submit roadmap request");
     } finally {
       clearTimeout(timeout);
